@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>会员中心</title>
+  <link href="assets/bootstrap.css" rel="stylesheet">
+  <link href="assets/index.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <h1>你好</h1>
+  <header>
+    <!-- <div class="navbar navbar-dark navbar-expand-sm bg-dark shadow-sm">
+      <div class="container">
+        <a href="/" class="navbar-brand d-flex justify-content-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="feather feather-aperture">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+            <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+            <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+            <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+            <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+            <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+          </svg>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav">
+            <li class="nav-item active"><a class="nav-link" href="/">会员中心</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main role="main">
+    <section class="jumbotron mb-0 bg-white text-center">
+      <div class="container">
+        <h1 class="display-4">会员</h1>
+        <p class="lead text-muted">All members</p>
+        <div>
+          <a href="add.html" class="btn btn-primary my-2">新增会员</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div id="members" class="row"> -->
+          <!-- tpl-替换区域 -->
+          <div class="col-lg-4 col-md-6">
+            <div class="card mb-4">
+              <div class="card-img-top py-4 bg-dark text-center">
+                <img class="img-thumbnail mb-2 rounded-circle" src="/assets/default.png" alt="heima" width="128">
+                <h3 class="card-title text-light">heima</h3>
+              </div>
+              <div class="card-body">
+                <p class="card-text">13242134213</p>
+                <a href="#" class="card-link">查看</a>
+                <a href="#" class="card-link text-danger">删除</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <div class="card mb-4">
+              <div class="card-img-top py-4 bg-dark text-center">
+                <img class="img-thumbnail mb-2 rounded-circle" src="/assets/default.png" alt="heima" width="128">
+                <h3 class="card-title text-light">heima</h3>
+              </div>
+              <div class="card-body">
+                <p class="card-text">MAKE IT BETTER!</p>
+                <a href="#" class="card-link">查看</a>
+                <a href="#" class="card-link text-danger">删除</a>
+              </div>
+            </div>
+          </div>
+          <!-- end -->
+        </div>
+      </div>
+      <!-- 数据加载状态 -->
+      <div class="loading" id="loading">
+        <img src="./assets/loading.gif" alt="">
+        玩命加载中.....
+      </div>
+
+      <div class="loading" id="nomore">
+        加载完成
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-5 text-muted">
+    <p class="container">
+      <span>会员管理系统 &copy; 黑马程序员
+        <a class="float-right" href="#">返回顶部 &uparrow;</a>
+    </p>
+  </footer>
+
+  <script src="./lib/jquery-3.4.1.min.js"></script>
+  <script>
+    /**
+     * 后端分页接口地址
+     * type: 'get'
+     * 参数: pageStart-第几页(默认1), pageSize-每页数据(默认6)
+     * 返回值: []某页指定条数的数据
+     */
+    var apiList = '/member/list';
+    /**
+     * 后端删除会员接口地址
+     * type: 'post'
+     * 参数: {id:1}
+     * 返回值: {success:true}
+     */
+    var apiDel = '/member/delete';
+
+    // start code
+    /**
+     * 需求：
+     * 1. 显示会员列表
+     * 2. 新增会员
+     * 3. 查看会员
+     * 4. 删除会员
+     * 5. 下拉加载更多
+     * 全局变量: pageStart-页码, pageSize-每页条数, loading-加载中, loaded-列表是否加载完毕
+     */
+    var pageStart = 0, loading = false, loaded = false;
+    // dom元素
+    var ebox = $('#members'), eloading = $('#loading'), eloaded = $('#nomore');
+    // 1. 显示会员列表
+    function getMembers() {
+      eloading.show();
+      loading = true;
+      pageStart = pageStart + 1;
+      // 1.1 获取会员列表
+      $.ajax({
+        url: apiList,
+        data: { pageStart: pageStart },
+        success: function (res) {
+          if (res && res.data.length) {
+            // 列表数据
+            var list = res.data;
+            // 拼接会员dom串
+            var items = '';
+            list.forEach(function (item, index) {
+              items = items + `<div class="col-lg-4 col-md-6" id="member${item.id}">
+            <div class="card mb-4">
+              <div class="card-img-top py-4 bg-dark text-center">
+                <img class="img-thumbnail mb-2 rounded-circle" src="${item.avatar}" alt="heima" width="128">
+                <h3 class="card-title text-light">${item.name}</h3>
+              </div>
+              <div class="card-body">
+                <p class="card-text">${item.bio}</p>
+                <a href="detail.html?id=${item.id}" class="card-link">查看</a>
+                <a href="javascript:;" mid="${item.id}" class="delm card-link text-danger">删除</a>
+              </div>
+            </div>
+          </div>`
+            })
+            // console.log(items)
+            ebox.append(items)
+          } else {
+            loaded = true;
+            eloaded.show();
+          }
+          loading = false;
+          eloading.hide()
+        }
+      })
+    }
+
+
+
+    // 页面加载完成
+    $(function () {
+      // 获取会员列表
+      getMembers()
+
+      // 下拉加载更多
+      $(window).scroll(function () {
+        // 加载完成或者正在加载中，停止执行
+        if (loaded || loading) return;
+        var scrollTop = $(this).scrollTop(), clientHeight = $(this).height(), scrollHeight = $(document).height();
+        // 加载时机
+        if (scrollTop + clientHeight === scrollHeight) {
+          // 满足条件加载下一页数据
+          getMembers()
+        }
+      })
+
+      // 删除会员
+      ebox.on('click', '.delm', function () {
+        // 获取当前会员ID
+        var id = $(this).attr('mid');
+        console.log(id);
+
+        if (window.confirm('确定删除？')) {
+          // 发送请求，删除会员
+          $.ajax({
+            type: 'post',
+            url: apiDel,
+            data: { id: id },
+            success: function (res) {
+              if (res.success) {
+                alert('删除成功！');
+                $('#member' + id).remove()
+              }
+            }
+          })
+        }
+      })
+    })
+
+  </script>
+</body>
+
+</html>
